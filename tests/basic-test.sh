@@ -114,23 +114,23 @@ EOF
 fi
 
 # Run microstack.launch
-$PREFIX /snap/bin/microstack.launch breakfast || (dump_logs && exit 1)
+$PREFIX /snap/bin/microstack.smoke || (dump_logs && exit 1)
 
 # Verify that endpoints are setup correctly
 # List of endpoints should contain 10.20.20.1
 if ! $PREFIX /snap/bin/microstack.openstack endpoint list | grep "10.20.20.1"; then
     echo "Endpoints are not set to 10.20.20.1!";
-    exit 1;
+    dump_logs && exit 1
 fi
 # List of endpoints should not contain localhost
 if $PREFIX /snap/bin/microstack.openstack endpoint list | grep "localhost"; then
     echo "Endpoints are not set to 10.20.20.1!";
-    exit 1;
+    dump_logs && exit 1
 fi
 
 
 # Verify that microstack.launch completed
-IP=$($PREFIX /snap/bin/microstack.openstack server list | grep breakfast | cut -d" " -f9)
+IP=$($PREFIX /snap/bin/microstack.openstack server list | grep test | cut -d" " -f9)
 echo "Waiting for ping..."
 PINGS=1
 MAX_PINGS=40  # We might sometimes be testing qemu emulation, so we
@@ -139,7 +139,7 @@ until $PREFIX ping -c 1 $IP &>/dev/null; do
     PINGS=$(($PINGS + 1));
     if test $PINGS -gt $MAX_PINGS; then
         echo "Unable to ping machine!";
-        exit 1;
+        dump_logs && exit 1
     fi
 done;
 
@@ -154,7 +154,7 @@ until $PREFIX ssh -oStrictHostKeyChecking=no -i \
     ATTEMPTS=$(($ATTEMPTS + 1));
     if test $ATTEMPTS -gt $MAX_ATTEMPTS; then
         echo "Unable to access Internet from machine!";
-        exit 1;
+        dump_logs && exit 1
     fi
     sleep 5
 done;

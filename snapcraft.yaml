@@ -302,10 +302,18 @@ apps:
 
   # Utility to launch a vm. Creates security groups, floating ips,
   # and other necessities as well.
+  # Deprecated -- will be folded into config and/or smoke script.
   launch:
     command: bin/launch.sh
 #    plugs:
 #      - network
+
+  # Smoke test.
+  smoke:
+    command: bin/launch.sh test
+#    plugs:
+#      - network
+
 
 parts:
   # Add Ubuntu Cloud Archive sources.
