@@ -447,7 +447,7 @@ parts:
     prime: [$etc]
 
   horizon-config:
-    after: [openstack-projects]
+    after: [openstack-projects, patches]
     plugin: dump
     source: http://tarballs.openstack.org/horizon/horizon-stable-stein.tar.gz
     organize:
@@ -457,6 +457,17 @@ parts:
         - etc/horizon/*
     stage: [$etc]
     prime: [$etc]
+    override-prime: |
+      snapcraftctl prime
+      for patch in ${SNAPCRAFT_STAGE}/patches/horizon/*.patch; do
+        echo "Applying $(basename "$patch") ..."
+        patch \
+          --batch \
+          --forward \
+          --strip 1 \
+          --input "$patch"
+        echo
+      done
 
   # Snap patches
   patches:
