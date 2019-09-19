@@ -22,7 +22,12 @@ limitations under the License.
 """
 
 
+from init.config import Env
 from typing import Tuple
+from init.shell import SnapCtl as snapctl
+
+
+_env = Env().get_env()
 
 
 class InvalidQuestion(Exception):
@@ -65,13 +70,20 @@ class Question():
     _type = 'auto'  # can be binary, string or auto
     _invalid_prompt = 'Please answer Yes or No.'
     _retries = 3
-    _input_func = input
+    _default = ''  # Key in snapctl config that contains a default value.
 
     def __init__(self):
 
         if self._type not in ['binary', 'string', 'auto']:
             raise InvalidQuestion(
                 'Invalid type {} specified'.format(self._type))
+        # Skip interactive prompt for 'auto' questions.
+        if self._type == 'auto' or _env.get('MICROSTACK_AUTO_INIT'):
+            self._input_func = lambda prompt: ''
+
+    def _input_func(self, prompt):
+        """Default input function. Wrapper around python's input."""
+        return input(prompt).decode('utf8')
 
     def _validate(self, answer: bytes) -> Tuple[str, bool]:
         """Validate an answer.
@@ -83,8 +95,6 @@ class Question():
         """
         if self._type == 'auto':
             return True, True
-
-        answer = answer.decode('utf8')
 
         if self._type == 'string':
             # TODO Santize this!
@@ -107,6 +117,12 @@ class Question():
         """Routine to run if the user answers 'no'"""
         raise AnswerNotImplemented('You must override this method.')
 
+    def default(self):
+        """Return the default value from snapctl config"""
+        if self._default:
+            return snapctl.get(self._default)
+        return ''
+
     def ask(self) -> None:
         """
         Ask the user a question.
@@ -115,11 +131,11 @@ class Question():
         user cannot specify a valid answer after self._retries tries.
 
         """
-        prompt = self._question
+        default = self.default()
+        prompt = self._question.format(default=default)
 
         for i in range(0, self._retries):
-            awr, valid = self._validate(
-                self._type == 'auto' or self._input_func(prompt))
+            awr, valid = self._validate(self._input_func(prompt) or default)
             if valid:
                 if awr:
                     return self.yes(awr)

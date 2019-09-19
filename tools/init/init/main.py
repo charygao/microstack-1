@@ -30,18 +30,25 @@ limitations under the License.
 """
 import sys
 
-from init.config import log
+from init.config import log, Env
 
 from init import questions
 
 
+_env = Env().get_env()
+
+
 def main() -> None:
+    # TODO: set this based on command line arg
+    _env['MICROSTACK_AUTO_INIT'] = True
+
     question_list = [
         questions.Setup(),
         questions.IpForwarding(),
         # The following are not yet implemented:
         # questions.VmSwappiness(),
         # questions.FileHandleLimits(),
+        questions.DashboardAllowedHosts(),
         questions.RabbitMQ(),
         questions.DatabaseSetup(),
         questions.NovaSetup(),

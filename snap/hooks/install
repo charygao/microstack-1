@@ -7,6 +7,9 @@ snapctl set \
         extcidr=10.20.20.1/24 \
         dns=1.1.1.1
 
+snapctl set dashboard.allowed-hosts='*'
+
+
 # MySQL snapshot for speedy install
 # snapshot is a mysql data dir with
 # rocky keystone,nova,glance,neutron dbs.

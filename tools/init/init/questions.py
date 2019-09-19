@@ -110,6 +110,33 @@ class FileHandleLimits(Question):
         pass
 
 
+class DashboardAllowedHosts(Question):
+    """Open up the dashboard to some set of hosts."""
+    _type = 'string'
+    _question = """\
+Which hosts do you wish to allow to access the dashboard?
+(Pass a comma seperated string, or * in order to accept all.)
+Default: {default}"""
+    _default = 'dashboard.allowed-hosts'
+
+    def yes(self, answer: str) -> None:
+        answer = answer.split(",")
+
+        settings_body = """\
+# Allowed hosts. Setup by init script.
+
+ALLOWED_HOSTS = {hosts}
+""".format(hosts=str(answer))
+
+        file_path = '{SNAP_COMMON}/{rel_path}'.format(
+            rel_path='etc/horizon/local_settings.d/_10_hosts.py',
+            **_env)
+        with open(file_path, 'w') as settings_file:
+            settings_file.write(settings_body)
+
+        restart('*horizon*')
+
+
 class RabbitMQ(Question):
     """Wait for Rabbit to start, then setup permissions."""
 

@@ -102,22 +102,22 @@ class TestInput(unittest.TestCase):
         q = GoodBinaryQuestion()
 
         for answer in ['yes', 'Yes', 'y']:
-            q._input_func = lambda x: answer.encode('utf8')
+            q._input_func = lambda x: answer
             self.assertTrue(q.ask())
 
         for answer in ['No', 'n', 'no']:
-            q._input_func = lambda x: answer.encode('utf8')
+            q._input_func = lambda x: answer
             self.assertFalse(q.ask())
 
         with self.assertRaises(InvalidAnswer):
-            q._input_func = lambda x: 'foo'.encode('utf8')
+            q._input_func = lambda x: 'foo'
             q.ask()
 
     def test_string_question(self):
         q = GoodStringQuestion()
 
         for answer in ['foo', 'bar', 'baz', '', 'yadayadayada']:
-            q._input_func = lambda x: answer.encode('utf8')
+            q._input_func = lambda x: answer
             self.assertEqual(answer, q.ask())
 
 

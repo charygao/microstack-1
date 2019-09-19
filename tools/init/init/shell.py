@@ -168,3 +168,16 @@ def restart(service: str) -> None:
 def download(url: str, output: str) -> None:
     """Download a file to a path"""
     wget.download(url, output)
+
+
+class SnapCtl():
+    @classmethod
+    def get(cls, key):
+        """Get a value out in the snapctl config"""
+        return check_output('snapctl', 'get', key)
+
+    @classmethod
+    def set(cls, key, val):
+        """Set a value out in the snapctl config"""
+        # TODO: escaping for spaces and such in val.
+        return check_output('snapctl', 'set', '{}={}'.fomat(key, val))
