@@ -165,6 +165,16 @@ def restart(service: str) -> None:
     check('systemctl', 'restart', 'snap.microstack.{}'.format(service))
 
 
+def start(service: str) -> None:
+    """Start a microstack service.
+
+    :param service: the service(s) to be started. Can contain wild cards.
+                    e.g. *rabbit*
+
+    """
+    check('systemctl', 'start', 'snap.microstack.{}'.format(service))
+
+
 def download(url: str, output: str) -> None:
     """Download a file to a path"""
     wget.download(url, output)

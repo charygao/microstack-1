@@ -26,10 +26,17 @@ apps:
 #    plugs:
 #      - network
 
+  # Utility for waiting on auto start until the snap has been initialized.
+  wait:
+    command: microstack_wait
+    daemon: oneshot    
+
   # Keystone
   keystone-uwsgi:
     command: snap-openstack launch keystone-uwsgi
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
   keystone-manage:
@@ -41,26 +48,36 @@ apps:
   nova-uwsgi:
     command: snap-openstack launch nova-uwsgi
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
   nova-api:
     command: snap-openstack launch nova-api-os-compute
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
   nova-conductor:
     command: snap-openstack launch nova-conductor
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network
   nova-scheduler:
     command: snap-openstack launch nova-scheduler
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network
   nova-compute:
     command: snap-openstack launch nova-compute
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
 #      - network-control
@@ -71,6 +88,8 @@ apps:
   nova-api-metadata:
     command: snap-openstack launch nova-api-metadata
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
 #      - firewall-control
@@ -83,11 +102,15 @@ apps:
   neutron-api:
     command: snap-openstack launch neutron-server
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
   neutron-openvswitch-agent:
     command: snap-openstack launch neutron-openvswitch-agent
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
 #      - network-control
@@ -99,6 +122,8 @@ apps:
   neutron-l3-agent:
     command: snap-openstack launch neutron-l3-agent
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
 #      - network-control
@@ -110,6 +135,8 @@ apps:
   neutron-dhcp-agent:
     command: snap-openstack launch neutron-dhcp-agent
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network
 #      - network-bind
@@ -121,6 +148,8 @@ apps:
   neutron-metadata-agent:
     command: snap-openstack launch neutron-metadata-agent
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network
 #      - network-bind
@@ -145,11 +174,15 @@ apps:
   glance-api:
     command: snap-openstack launch glance-api
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
-  registry:
+  glance-registry:
     command: snap-openstack launch glance-registry
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network
 #      - network-bind
@@ -297,6 +330,8 @@ apps:
   horizon-uwsgi:
     command: snap-openstack launch horizon-uwsgi
     daemon: simple
+    after:
+      - wait
 #    plugs:
 #      - network-bind
 
@@ -831,3 +866,9 @@ parts:
       - pymysql
       - wget
     source: tools/init
+
+  # Wait utility
+  wait:
+    plugin: python
+    python-version: python3
+    source: tools/wait

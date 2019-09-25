@@ -28,7 +28,7 @@ from time import sleep
 from os import path
 
 from init.shell import (check, call, check_output, shell, sql, nc_wait,
-                        log_wait, restart, download)
+                        log_wait, restart, start, download)
 from init.config import Env, log
 from init.question import Question
 
@@ -184,6 +184,9 @@ class DatabaseSetup(Question):
         check('snap-openstack', 'launch', 'keystone-manage',
               'fernet_setup', '--keystone-user', 'root',
               '--keystone-group', 'root')
+
+        start('keystone-*')
+
         check('snap-openstack', 'launch', 'keystone-manage', 'db_sync')
 
         restart('keystone-*')
@@ -261,6 +264,8 @@ class NovaSetup(Question):
             "GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'{extgateway}' \
             IDENTIFIED BY \'nova';".format(**_env))
 
+        start('nova-*')
+
         check('snap-openstack', 'launch', 'nova-manage', 'api_db', 'sync')
 
         if 'cell0' not in check_output('snap-openstack', 'launch',
@@ -306,6 +311,8 @@ class NeutronSetup(Question):
                 call('openstack', 'endpoint', 'create', '--region',
                      'microstack', 'network', endpoint,
                      'http://{extgateway}:9696'.format(**_env))
+
+        start('neutron-*')
 
         check('snap-openstack', 'launch', 'neutron-db-manage', 'upgrade',
               'head')
@@ -385,6 +392,8 @@ class GlanceSetup(Question):
                       'microstack', 'image', endpoint,
                       'http://{extgateway}:9292'.format(**_env))
 
+        start('glance-*')
+
         check('snap-openstack', 'launch', 'glance-manage', 'db_sync')
 
         restart('glance*')
@@ -405,6 +414,9 @@ class PostSetup(Question):
         # This fixes an issue w/ logging not getting set.
         # TODO: fix issue.
         restart('*virt*')
+
+        # Start horizon
+        start("horizon-*")
 
         check('snapctl', 'set', 'initialized=true')
         log.info('Complete. Marked microstack as initialized!')
